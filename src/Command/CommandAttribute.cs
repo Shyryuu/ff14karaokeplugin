@@ -1,6 +1,6 @@
 using System;
 
-namespace DalamudPluginProjectTemplate.Attributes
+namespace DalamudPluginProjectTemplate.Command
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class CommandAttribute : Attribute

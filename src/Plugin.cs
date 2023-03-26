@@ -1,11 +1,14 @@
-﻿using Dalamud.Game.ClientState;
+﻿using System;
+using Dalamud.Game;
+using Dalamud.Game.ClientState;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using DalamudPluginProjectTemplate.Attributes;
-using System;
+using DalamudPluginProjectTemplate.Command;
+using DalamudPluginProjectTemplate.Controller;
+using DalamudPluginProjectTemplate.UI;
 
 namespace DalamudPluginProjectTemplate
 {
@@ -25,29 +28,38 @@ namespace DalamudPluginProjectTemplate
             DalamudPluginInterface pi,
             CommandManager commands,
             ChatGui chat,
-            ClientState clientState)
+            ClientState clientState,
+            Framework framework
+        )
         {
-            this.pluginInterface = pi;
+            pluginInterface = pi;
             this.chat = chat;
             this.clientState = clientState;
 
             // Get or create a configuration object
-            this.config = (Configuration)this.pluginInterface.GetPluginConfig()
-                          ?? this.pluginInterface.Create<Configuration>();
+            config = (Configuration)pluginInterface.GetPluginConfig()
+                     ?? pluginInterface.Create<Configuration>();
 
             // Initialize the UI
-            this.windowSystem = new WindowSystem(typeof(Plugin).AssemblyQualifiedName);
+            windowSystem = new WindowSystem(typeof(Plugin).AssemblyQualifiedName);
 
-            var window = this.pluginInterface.Create<PluginWindow>();
-            if (window is not null)
-            {
-                this.windowSystem.AddWindow(window);
-            }
+            var window = pluginInterface.Create<KaraokeWindow>();
+            if (window is null) return;
 
-            this.pluginInterface.UiBuilder.Draw += this.windowSystem.Draw;
+            windowSystem.AddWindow(window);
+
+
+            pluginInterface.UiBuilder.Draw += windowSystem.Draw;
 
             // Load all of our commands
-            this.commandManager = new PluginCommandManager<Plugin>(this, commands);
+            commandManager = new PluginCommandManager<Plugin>(this, commands);
+
+            // Load controller
+            var controller = pluginInterface.Create<KaraokeController>();
+            if (controller is null) return;
+
+            framework.Update += controller.OnFrameworkUpdate;
+            controller.LyricsUpdate += window.OnLyricsUpdated;
         }
 
         [Command("/example1")]
@@ -56,22 +68,23 @@ namespace DalamudPluginProjectTemplate
         {
             // You may want to assign these references to private variables for convenience.
             // Keep in mind that the local player does not exist until after logging in.
-            var world = this.clientState.LocalPlayer?.CurrentWorld.GameData;
-            this.chat.Print($"Hello, {world?.Name}!");
+            var world = clientState.LocalPlayer?.CurrentWorld.GameData;
+            chat.Print($"Hello, {world?.Name}!");
             PluginLog.Log("Message sent successfully.");
         }
 
         #region IDisposable Support
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing) return;
 
-            this.commandManager.Dispose();
+            commandManager.Dispose();
 
-            this.pluginInterface.SavePluginConfig(this.config);
+            pluginInterface.SavePluginConfig(config);
 
-            this.pluginInterface.UiBuilder.Draw -= this.windowSystem.Draw;
-            this.windowSystem.RemoveAllWindows();
+            pluginInterface.UiBuilder.Draw -= windowSystem.Draw;
+            windowSystem.RemoveAllWindows();
         }
 
         public void Dispose()
@@ -79,6 +92,7 @@ namespace DalamudPluginProjectTemplate
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         #endregion
     }
 }

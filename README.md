@@ -1,11 +1,16 @@
 # DalamudPluginProjectTemplate
-An opinionated Visual Studio project template for Dalamud plugins, with attributes for more maintainable command setup and teardown.
+
+An opinionated Visual Studio project template for Dalamud plugins, with attributes for more maintainable command setup
+and teardown.
 
 ## Hint paths
-The project file includes hint paths for the dependencies, which are set up to not include much information about the developer's filesystem.
+
+The project file includes hint paths for the dependencies, which are set up to not include much information about the
+developer's filesystem.
 You may need to adjust these paths yourself, if they don't represent your development environment.
 
 ## Attributes
+
 This template includes an attribute framework reminiscent of [Discord.Net](https://github.com/discord-net/Discord.Net).
 
 ```csharp
@@ -31,7 +36,10 @@ public void ExampleCommand2(string command, string args)
 This automatically registers and unregisters the methods that they're attached to on initialization and dispose.
 
 ## GitHub Actions
-Running the shell script `DownloadGithubActions.sh` will download some useful GitHub actions for you. You can also delete this file if you have no need for it.
+
+Running the shell script `DownloadGithubActions.sh` will download some useful GitHub actions for you. You can also
+delete this file if you have no need for it.
 
 ### Current Actions
-  * dotnet build/test
+
+* dotnet build/test

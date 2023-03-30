@@ -14,15 +14,13 @@ namespace DalamudPluginProjectTemplate
 {
     public class Plugin : IDalamudPlugin
     {
-        private readonly DalamudPluginInterface pluginInterface;
         private readonly ChatGui chat;
         private readonly ClientState clientState;
 
         private readonly PluginCommandManager<Plugin> commandManager;
         private readonly Configuration config;
+        private readonly DalamudPluginInterface pluginInterface;
         private readonly WindowSystem windowSystem;
-
-        public string Name => "Your Plugin's Display Name";
 
         public Plugin(
             DalamudPluginInterface pi,
@@ -61,6 +59,8 @@ namespace DalamudPluginProjectTemplate
             framework.Update += controller.OnFrameworkUpdate;
             controller.LyricsUpdate += window.OnLyricsUpdated;
         }
+
+        public string Name => "Your Plugin's Display Name";
 
         [Command("/example1")]
         [HelpMessage("Example help message.")]

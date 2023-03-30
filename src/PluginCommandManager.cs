@@ -11,15 +11,16 @@ namespace DalamudPluginProjectTemplate
     public class PluginCommandManager<THost> : IDisposable
     {
         private readonly CommandManager commandManager;
-        private readonly (string, CommandInfo)[] pluginCommands;
         private readonly THost host;
+        private readonly (string, CommandInfo)[] pluginCommands;
 
         public PluginCommandManager(THost host, CommandManager commandManager)
         {
             this.commandManager = commandManager;
             this.host = host;
 
-            pluginCommands = host.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
+            pluginCommands = host.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public |
+                                                       BindingFlags.Static | BindingFlags.Instance)
                 .Where(method => method.GetCustomAttribute<CommandAttribute>() != null)
                 .SelectMany(GetCommandInfoTuple)
                 .ToArray();
@@ -27,20 +28,20 @@ namespace DalamudPluginProjectTemplate
             AddCommandHandlers();
         }
 
+        public void Dispose()
+        {
+            RemoveCommandHandlers();
+            GC.SuppressFinalize(this);
+        }
+
         private void AddCommandHandlers()
         {
-            foreach (var (command, commandInfo) in pluginCommands)
-            {
-                commandManager.AddHandler(command, commandInfo);
-            }
+            foreach (var (command, commandInfo) in pluginCommands) commandManager.AddHandler(command, commandInfo);
         }
 
         private void RemoveCommandHandlers()
         {
-            foreach (var (command, _) in pluginCommands)
-            {
-                commandManager.RemoveHandler(command);
-            }
+            foreach (var (command, _) in pluginCommands) commandManager.RemoveHandler(command);
         }
 
         private IEnumerable<(string, CommandInfo)> GetCommandInfoTuple(MethodInfo method)
@@ -55,26 +56,16 @@ namespace DalamudPluginProjectTemplate
             var commandInfo = new CommandInfo(handlerDelegate)
             {
                 HelpMessage = helpMessage?.HelpMessage ?? string.Empty,
-                ShowInHelp = doNotShowInHelp == null,
+                ShowInHelp = doNotShowInHelp == null
             };
 
             // Create list of tuples that will be filled with one tuple per alias, in addition to the base command tuple.
             var commandInfoTuples = new List<(string, CommandInfo)> { (command!.Command, commandInfo) };
             if (aliases != null)
-            {
                 foreach (var alias in aliases.Aliases)
-                {
                     commandInfoTuples.Add((alias, commandInfo));
-                }
-            }
 
             return commandInfoTuples;
-        }
-
-        public void Dispose()
-        {
-            RemoveCommandHandlers();
-            GC.SuppressFinalize(this);
         }
     }
 }

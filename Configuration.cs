@@ -5,22 +5,24 @@ namespace DalamudPluginProjectTemplate
 {
     public class Configuration : IPluginConfiguration
     {
-        int IPluginConfiguration.Version { get; set; }
-
-        #region Saved configuration values
-        public string CoolText { get; set; }
-        #endregion
-
         private readonly DalamudPluginInterface pluginInterface;
 
         public Configuration(DalamudPluginInterface pi)
         {
-            this.pluginInterface = pi;
+            pluginInterface = pi;
         }
+
+        #region Saved configuration values
+
+        public string CoolText { get; set; }
+
+        #endregion
+
+        int IPluginConfiguration.Version { get; set; }
 
         public void Save()
         {
-            this.pluginInterface.SavePluginConfig(this);
+            pluginInterface.SavePluginConfig(this);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace DalamudPluginProjectTemplate.Controller
 
         public void OnFrameworkUpdate(Framework framework)
         {
-            this.LyricsUpdate?.Invoke(
+            LyricsUpdate?.Invoke(
                 new LyricsUpdatedEventArgs(framework.UpdateDelta.TotalSeconds)
             );
         }
